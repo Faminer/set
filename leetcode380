@@ -1,0 +1,121 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include <time.h>
+typedef struct node{
+    int data;
+    struct node* next;
+} RandomizedSet;
+
+/** Initialize your data structure here. */
+RandomizedSet* randomizedSetCreate() {
+    RandomizedSet* head=NULL;
+    return head;
+}
+
+/** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+bool randomizedSetInsert(RandomizedSet* obj, int val) {
+    RandomizedSet *p, *q;
+    p = (RandomizedSet*)malloc(sizeof(RandomizedSet));
+    p->data = val;
+    p->next = NULL;
+    if(obj == NULL)
+        obj = p;
+    else
+    {
+        q = obj;
+        while(q!=NULL)
+        {
+            if(q->next->data == val)
+                return 0;
+            if(q->next->data > val)
+            {
+                p->next = q->next;
+                q->next = p;
+                break;
+            }
+            if(q->next == NULL)
+                q->next = p;
+            q = q->next;
+        }
+    }
+    return 1;
+}
+
+/** Removes a value from the set. Returns true if the set contained the specified element. */
+bool randomizedSetRemove(RandomizedSet* obj, int val) {
+    RandomizedSet *p;
+    p = obj;
+    while(p != NULL)
+    {
+        if(p->next != NULL && p->next->data == val)
+        {
+            if(p->next->next != NULL)
+                p->next = p->next->next;
+            else
+                p->next = NULL;
+            return 1;
+        }      
+    }
+    return 0;
+}
+
+/** Get a random element from the set. */
+int randomizedSetGetRandom(RandomizedSet* obj) {
+    int a, i = 1;
+    RandomizedSet *p, *q;
+    p = obj;
+    q = NULL;
+    while(p != NULL)
+    {
+        srand((unsigned)time(NULL));
+        a = rand();
+        if(a%i == 0)
+            if(q = NULL)
+                q = obj;
+            else
+                q = q->next;
+        i++;
+    }
+    return q->data;
+}
+
+void randomizedSetFree(RandomizedSet* obj) {
+    RandomizedSet *p, *q;
+    p = obj;
+    while(p != NULL)
+    {
+        q = p->next;
+        free(p);
+        p = q;
+    }
+}
+
+/**
+ * Your RandomizedSet struct will be instantiated and called as such:
+ * struct RandomizedSet* obj = randomizedSetCreate();
+ * bool param_1 = randomizedSetInsert(obj, val);
+ * bool param_2 = randomizedSetRemove(obj, val);
+ * int param_3 = randomizedSetGetRandom(obj);
+ * randomizedSetFree(obj);
+ */
+void main()
+{
+	bool x1, x2;
+	RandomizedSet* obj;
+	obj = randomizedSetCreate();
+	x1 = randomizedSetInsert(obj, 1);
+	x2 = randomizedSetInsert(obj, 2);
+	x2 = randomizedSetInsert(obj, 3);
+	printf("%d", randomizedSetRemove(obj, 1));
+}
+
+/**
+*遍历链表 对第i个节点 （i从1开始），均匀产生随机数 x
+*若x % i == 0 则暂时保留这个节点 （换掉之前保留的节点）
+*（1） 如果只有1个节点 选择第1个节点的概率是1
+*（2） 如果只有2个节点 第一步先选择第1个节点 然后再以1/2的概率换掉， 所以每个节点选择的概率是1/2
+*（3） 假设遍历到链表第n个节点的时候 选择目前保留的n个节点的概率都是1/n
+*则对第(n + 1)个节点， 我们有1/(n + 1)的概率选择它，有n / (n + 1)的概率保留原来保存的节点，所以保留前n个节点中每个的概率是(这是个条件概率） 1/n * (n / (n + 1)) = 1 / (n + 1) ，
+*可见最终保留每个节点的概率都是1/(n + 1)
+*这种抽样方法叫水库抽样，可以扩展到要保留k个的情况。
+**/
